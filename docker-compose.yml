@@ -1,0 +1,37 @@
+name: nexus
+
+services:
+  grafana:
+    image: grafana/grafana
+    container_name: grafana
+    restart: unless-stopped
+    # Expose grafana to external
+    ports:
+      - '3000:3000'
+    volumes:
+      - grafana-storage:/var/lib/grafana
+
+  prometheus:
+    image: prom/prometheus
+    container_name: prometheus
+    restart: unless-stopped
+    command:
+      - '--config.file=/etc/prometheus/prometheus.yml'
+    volumes:
+      - ./prometheus:/etc/prometheus
+      - prometheus-storage:/prometheus
+
+  debian:
+    image: debian:stable-slim
+    container_name: debian
+    command:
+      - '/usr/local/bin/./node_exporter'
+    restart: unless-stopped
+    # Ok to mount here, no bins here for this image
+    volumes:
+      - ./debian:/usr/local/bin/
+
+volumes:
+  prometheus-storage:
+  grafana-storage:
+  
